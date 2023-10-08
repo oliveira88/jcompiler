@@ -1,4 +1,4 @@
-use anyhow::Result;
+// use anyhow::Result;
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
@@ -40,7 +40,7 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    fn new(input: String) -> Lexer {
+    pub fn new(input: String) -> Lexer {
         return Lexer {
             position: 0,
             read_position: 0,
@@ -49,30 +49,44 @@ impl Lexer {
         };
     }
 
-    fn next_token(&mut self) -> Result<Token> {
-        let token = match self.char {
-            b'{' => Token::LBracket,
-            b'}' => Token::RBracket,
-            b';' => Token::Semicolon,
-            b':' => Token::Colon,
-            b'=' => Token::Assign,
-            b'(' => Token::LParen,
-            b')' => Token::RParen,
-            _ => todo!("Precisa ver isso aí"),
-        };
-        return Ok(token);
+    // fn next_token(&mut self) -> Result<Token> {
+    pub fn next_token(&mut self) {
+        while self.read_position < self.input.len() {
+            let c = self.current_char();
+
+            println!("{:?}", c as char);
+            self.read_position += 1;
+        }
+
+        // let token = match self.char {
+        //     b'{' => Token::LBracket,
+        //     b'}' => Token::RBracket,
+        //     b';' => Token::Semicolon,
+        //     b':' => Token::Colon,
+        //     b'=' => Token::Assign,
+        //     b'(' => Token::LParen,
+        //     b')' => Token::RParen,
+        //     _ => todo!("Precisa ver isso aí"),
+        // };
+        // return Ok(token);
+    }
+
+    fn current_char(&mut self) -> u8 {
+        if self.read_position >= self.input.len() {
+            return 0;
+        } else {
+            return self.input[self.read_position];
+        }
     }
 }
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use anyhow::Result;
-
-    use super::{Lexer, Token};
 
     #[test]
     fn get_next_token() -> Result<()> {
-        let s = String::from("package main;");
         let input = r#"
           package example;
           import java.util.ArrayList;
@@ -95,7 +109,7 @@ mod test {
           }
           "#;
         let lex = Lexer::new(input.into());
-        let tokens: Vec<Token> = vec![Token::Package, Token::Identifier];
+        // let tokens: Vec<Token> = vec![Token::Package, Token::Identifier];
 
         return Ok(());
     }
