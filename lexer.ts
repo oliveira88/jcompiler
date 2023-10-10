@@ -1,74 +1,55 @@
 import { match } from "ts-pattern";
-const Keywords = [];
-enum TokenKind {
-  Identifier = "Identifier",
-  Package = "Package",
-  Import = "Import",
-  Class = "Class",
-  Public = "Public",
-  Protected = "Protected",
-  Private = "Private",
-  Static = "Static",
-  Abstract = "Abstract",
-  Final = "Final",
-  LBracket = "LBracket",
-  RBracket = "RBracket",
-  Semicolon = "Semicolon", // ;
-  Colon = "Colon", // :
-  Eq = "Eq",
-  Assign = "Assign",
-  GreaterThan = "GreaterThan",
-  LowerThan = "LowerThan",
-  LParen = "LParen",
-  RParen = "RParen",
-  Byte = "Byte",
-  Short = "Short",
-  Int = "Int",
-  Long = "Long",
-  Char = "Char",
-  Float = "Float",
-  Double = "Double",
-  Boolean = "Boolean",
-  Void = "Void",
-  If = "If",
-}
-type Token = {
-  tokenType: TokenKind;
-  identifier: string;
-};
+import { Token, TokenConst, TokenKind } from "./token";
+
 export class Lexer {
   private position: number = 0;
   private readPosition: number = 0;
-  private ch!: string;
+  private charAtMoment!: string;
+  private keywords = {
+    package: this.newToken(TokenConst.Package, "package"),
+    import: this.newToken(TokenConst.Import, "import"),
+    class: this.newToken(TokenConst.Class, "class"),
+    public: this.newToken(TokenConst.Public, "public"),
+    protected: this.newToken(TokenConst.Protected, "protected"),
+    private: this.newToken(TokenConst.Private, "private"),
+    static: this.newToken(TokenConst.Static, "static"),
+    abstract: this.newToken(TokenConst.Abstract, "abstract"),
+    final: this.newToken(TokenConst.Final, "final")
+  } as const;
   constructor(private input: string) {
     this.nextChar();
   }
   nextToken() {
     this.skipWhitespace();
     let token: Token | null = null;
-    match(this.ch)
-      .with("{", () => (token = this.newToken(TokenKind.LBracket, this.ch)))
-      .with("}", () => (token = this.newToken(TokenKind.RBracket, this.ch)))
-      .with(";", () => (token = this.newToken(TokenKind.Semicolon, this.ch)))
-      .with(":", () => (token = this.newToken(TokenKind.Colon, this.ch)))
-      .with("(", () => (token = this.newToken(TokenKind.LParen, this.ch)))
-      .with(")", () => (token = this.newToken(TokenKind.RParen, this.ch)))
+    match(this.charAtMoment)
+      .with("{", () => (token = this.newToken(TokenConst.LBracket, this.charAtMoment)))
+      .with("}", () => (token = this.newToken(TokenConst.RBracket, this.charAtMoment)))
+      .with(";", () => (token = this.newToken(TokenConst.Semicolon, this.charAtMoment)))
+      .with(":", () => (token = this.newToken(TokenConst.Colon, this.charAtMoment)))
+      .with("(", () => (token = this.newToken(TokenConst.LParen, this.charAtMoment)))
+      .with(")", () => (token = this.newToken(TokenConst.RParen, this.charAtMoment)))
       .with("=", () => {
         if (this.peekChar() === "=") {
-          token = this.newToken(TokenKind.Eq, "==");
+          token = this.newToken(TokenConst.Eq, "==");
         } else {
-          token = this.newToken(TokenKind.Assign, this.ch);
+          token = this.newToken(TokenConst.Assign, this.charAtMoment);
         }
       })
-      .with(">", () => (token = this.newToken(TokenKind.GreaterThan, this.ch)))
-      .with("<", () => (token = this.newToken(TokenKind.LowerThan, this.ch)));
+      .with(">", () => (token = this.newToken(TokenConst.GreaterThan, this.charAtMoment)))
+      .with("<", () => (token = this.newToken(TokenConst.LowerThan, this.charAtMoment)));
+    // .with("\0", () => (token = this.newToken(TokenKind.Eof, this.ch)));
 
-    if (this.isAlphabetic(this.ch)) {
+    if (this.isAlphabetic(this.charAtMoment)) {
       const identifier = this.readIdentifier();
-      return this.newToken(TokenKind.Identifier, identifier);
-    } else if (this.isNumber(this.ch)) {
+      const keyword = this.keywords[identifier as keyof typeof this.keywords];
+      if (keyword) {
+        return keyword;
+      }
+      return this.newToken(TokenConst.Identifier, identifier);
+    } else if (this.isNumber(this.charAtMoment)) {
       const num = this.readNumber();
-      return this.newToken(TokenKind.Int, num);
+      return this.newToken(TokenConst.Int, num);
     }
     this.nextChar();
     return token;
@@ -81,10 +62,10 @@ export class Lexer {
     do {
       this.nextChar();
     } while (
-      this.ch === " " ||
-      this.ch === "\n" ||
-      this.ch === "\t" ||
-      this.ch === "\r"
+      this.charAtMoment === " " ||
+      this.charAtMoment === "\n" ||
+      this.charAtMoment === "\t" ||
+      this.charAtMoment === "\r"
     );
   }
 
@@ -100,8 +81,8 @@ export class Lexer {
     return "0".charCodeAt(0) <= char && char <= "9".charCodeAt(0);
   }
 
-  isAlphabetic(ch: string): boolean {
-    const char = ch.charCodeAt(0);
+  isAlphabetic(character: string): boolean {
+    const char = character.charCodeAt(0);
     return (
       ("a".charCodeAt(0) <= char && "z".charCodeAt(0) >= char) ||
       ("A".charCodeAt(0) <= char && "Z".charCodeAt(0) >= char) ||
@@ -111,25 +92,26 @@ export class Lexer {
 
   private nextChar() {
     if (this.readPosition >= this.input.length) {
-      this.ch = "\0";
+      this.charAtMoment = "\0";
     } else {
-      this.ch = this.input[this.readPosition];
+      this.charAtMoment = this.input[this.readPosition];
     }
-    this.position = this.readPosition;
-    this.readPosition += 1;
+    this.position = this.readPosition++;
   }
 
   private readIdentifier(): string {
-    while (this.isAlphabetic(this.ch)) {
+    const initial = this.position;
+    while (this.isAlphabetic(this.charAtMoment)) {
       this.nextChar();
     }
-    return this.input.substring(this.position, this.readPosition);
+    return this.input.slice(initial, this.position);
   }
 
   private readNumber(): string {
-    while (this.isNumber(this.ch)) {
+    const initial = this.position;
+    while (this.isNumber(this.charAtMoment)) {
       this.nextChar();
     }
-    return this.input.substring(this.position, this.readPosition);
+    return this.input.slice(initial, this.position);
   }
 }

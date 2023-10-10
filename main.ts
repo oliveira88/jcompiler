@@ -24,7 +24,7 @@ public class Example {
 
 while (true) {
   const token = lexer.nextToken();
-  console.log({ token });
+  console.log(token);
   if (token === null) {
     break;
   }
