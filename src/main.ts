@@ -1,6 +1,8 @@
 import { Lexer } from "./lexer";
 
 const lexer = new Lexer(`
+name1 == name2;
+int num3r0 = 5;
 package example;
 import java.util.ArrayList;
 import java.util.List;
