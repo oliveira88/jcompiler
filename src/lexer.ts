@@ -36,6 +36,16 @@ export class Lexer {
           token = this.newToken(TokenConst.Assign, this.charAtMoment);
         }
       })
+      // .with("/", () => {
+      //   if (this.peekChar() === "/") {
+      //     this.ignoreComment(false);
+      //     token = this.newToken(TokenConst.Eq, "==");
+      //   } else if (this.peekChar() === "*") {
+      //     this.ignoreComment(true);
+      //   } else {
+      //     token = this.newToken(TokenConst.Division, this.charAtMoment);
+      //   }
+      // })
       .with(">", () => (token = this.newToken(TokenConst.GreaterThan, this.charAtMoment)))
       .with("<", () => (token = this.newToken(TokenConst.LowerThan, this.charAtMoment)));
     // .with("\0", () => (token = this.newToken(TokenKind.Eof, this.ch)));
@@ -54,6 +64,7 @@ export class Lexer {
     this.nextChar();
     return token;
   }
+  ignoreComment(isBlock: boolean) {}
 
   private newToken(tokenType: TokenKind, identifier: string): Token {
     return { tokenType, identifier };
@@ -101,7 +112,7 @@ export class Lexer {
 
   private readIdentifier(): string {
     const initial = this.position;
-    while (this.isAlphabetic(this.charAtMoment)) {
+    while (this.isAlphabetic(this.charAtMoment) || this.isNumber(this.charAtMoment)) {
       this.nextChar();
     }
     return this.input.slice(initial, this.position);
