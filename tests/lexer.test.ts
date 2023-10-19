@@ -1,0 +1,108 @@
+import { describe, expect, test } from "@jest/globals";
+import { Lexer } from "../src/lexer";
+import fs from "fs";
+import { Token, TokenConst } from "../src/token";
+
+let file: string = "";
+
+
+describe("Lexer tokeninze", () => {
+  beforeAll(() => {
+    file = fs.readFileSync("example.java", "utf8");
+  });
+  test("Should return a list of tokens", () => {
+    const lexer = new Lexer(file);
+    const tokens = lexer.tokenize();
+    const tokensExpected: Token[] = [
+      { tokenType: TokenConst.Identifier, identifier: "name1" },
+      { tokenType: TokenConst.Eq, identifier: "==" },
+      { tokenType: TokenConst.Identifier, identifier: "name2" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.Int, identifier: "int" },
+      { tokenType: TokenConst.Identifier, identifier: "num3r0" },
+      { tokenType: TokenConst.Assign, identifier: "=" },
+      { tokenType: TokenConst.Number, identifier: "5" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.Package, identifier: "package" },
+      { tokenType: TokenConst.Identifier, identifier: "example" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.Import, identifier: "import" },
+      { tokenType: TokenConst.Identifier, identifier: "java" },
+      { tokenType: TokenConst.Dot, identifier: "." },
+      { tokenType: TokenConst.Identifier, identifier: "util" },
+      { tokenType: TokenConst.Dot, identifier: "." },
+      { tokenType: TokenConst.Identifier, identifier: "ArrayList" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.Import, identifier: "import" },
+      { tokenType: TokenConst.Identifier, identifier: "java" },
+      { tokenType: TokenConst.Dot, identifier: "." },
+      { tokenType: TokenConst.Identifier, identifier: "util" },
+      { tokenType: TokenConst.Dot, identifier: "." },
+      { tokenType: TokenConst.Identifier, identifier: "List" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.Public, identifier: "public" },
+      { tokenType: TokenConst.Class, identifier: "class" },
+      { tokenType: TokenConst.Identifier, identifier: "Example" },
+      { tokenType: TokenConst.LBracket, identifier: "{" },
+      { tokenType: TokenConst.Private, identifier: "private" },
+      { tokenType: TokenConst.Identifier, identifier: "ArrayList" },
+      { tokenType: TokenConst.LowerThan, identifier: "<" },
+      { tokenType: TokenConst.Identifier, identifier: "String" },
+      { tokenType: TokenConst.GreaterThan, identifier: ">" },
+      { tokenType: TokenConst.Identifier, identifier: "names" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.Public, identifier: "public" },
+      { tokenType: TokenConst.Identifier, identifier: "Example" },
+      { tokenType: TokenConst.LParen, identifier: "(" },
+      { tokenType: TokenConst.RParen, identifier: ")" },
+      { tokenType: TokenConst.LBracket, identifier: "{" },
+      { tokenType: TokenConst.Identifier, identifier: "names" },
+      { tokenType: TokenConst.New, identifier: "new" },
+      { tokenType: TokenConst.Identifier, identifier: "ArrayList" },
+      { tokenType: TokenConst.LowerThan, identifier: "<" },
+      { tokenType: TokenConst.GreaterThan, identifier: ">" },
+      { tokenType: TokenConst.LParen, identifier: "(" },
+      { tokenType: TokenConst.RParen, identifier: ")" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.RBracket, identifier: "}" },
+      { tokenType: TokenConst.Public, identifier: "public" },
+      { tokenType: TokenConst.Void, identifier: "void" },
+      { tokenType: TokenConst.Identifier, identifier: "addName" },
+      { tokenType: TokenConst.LParen, identifier: "(" },
+      { tokenType: TokenConst.Identifier, identifier: "String" },
+      { tokenType: TokenConst.Identifier, identifier: "name" },
+      { tokenType: TokenConst.RParen, identifier: ")" },
+      { tokenType: TokenConst.LBracket, identifier: "{" },
+      { tokenType: TokenConst.Identifier, identifier: "names" },
+      { tokenType: TokenConst.Dot, identifier: "." },
+      { tokenType: TokenConst.Identifier, identifier: "add" },
+      { tokenType: TokenConst.LParen, identifier: "(" },
+      { tokenType: TokenConst.Identifier, identifier: "name" },
+      { tokenType: TokenConst.RParen, identifier: ")" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.RBracket, identifier: "}" },
+      { tokenType: TokenConst.Public, identifier: "public" },
+      { tokenType: TokenConst.Identifier, identifier: "List" },
+      { tokenType: TokenConst.LowerThan, identifier: "<" },
+      { tokenType: TokenConst.Identifier, identifier: "String" },
+      { tokenType: TokenConst.GreaterThan, identifier: ">" },
+      { tokenType: TokenConst.Identifier, identifier: "getNames" },
+      { tokenType: TokenConst.LParen, identifier: "(" },
+      { tokenType: TokenConst.RParen, identifier: ")" },
+      { tokenType: TokenConst.LBracket, identifier: "{" },
+      { tokenType: TokenConst.Return, identifier: "return" },
+      { tokenType: TokenConst.New, identifier: "new" },
+      { tokenType: TokenConst.Identifier, identifier: "ArrayList" },
+      { tokenType: TokenConst.LowerThan, identifier: "<" },
+      { tokenType: TokenConst.GreaterThan, identifier: ">" },
+      { tokenType: TokenConst.LParen, identifier: "(" },
+      { tokenType: TokenConst.Identifier, identifier: "names" },
+      { tokenType: TokenConst.RParen, identifier: ")" },
+      { tokenType: TokenConst.Semicolon, identifier: ";" },
+      { tokenType: TokenConst.RBracket, identifier: "}" },
+      { tokenType: TokenConst.RBracket, identifier: "}" },
+      { tokenType: TokenConst.Eof, identifier: "\0" },
+    ];
+    expect(tokens).toBe(tokensExpected);
+  });
+});
