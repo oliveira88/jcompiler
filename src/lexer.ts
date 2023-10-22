@@ -44,7 +44,13 @@ export class Lexer {
     throws: this.newToken(TokenConst.This, "throws", false),
     transient: this.newToken(TokenConst.Transient, "transient", false),
     new: this.newToken(TokenConst.New, "new", false),
-    return: this.newToken(TokenConst.Return, "return", false)
+    return: this.newToken(TokenConst.Return, "return", false),
+    break: this.newToken(TokenConst.Break, "break", false),
+    try: this.newToken(TokenConst.Try, "try", false),
+    catch: this.newToken(TokenConst.Catch, "catch", false),
+    finally: this.newToken(TokenConst.Finally, "finally", false),
+    super: this.newToken(TokenConst.Super, "super", false),
+    volatile: this.newToken(TokenConst.Volatile, "volatile", false)
   } as const;
   constructor(private input: string) {
     this.nextChar();
