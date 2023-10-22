@@ -57,6 +57,7 @@ describe("Lexer tokeninze", () => {
       { tokenType: TokenConst.RParen, identifier: ")" },
       { tokenType: TokenConst.LBracket, identifier: "{" },
       { tokenType: TokenConst.Identifier, identifier: "names" },
+      { tokenType: TokenConst.Assign, identifier: "=" },
       { tokenType: TokenConst.New, identifier: "new" },
       { tokenType: TokenConst.Identifier, identifier: "ArrayList" },
       { tokenType: TokenConst.LowerThan, identifier: "<" },
@@ -103,6 +104,6 @@ describe("Lexer tokeninze", () => {
       { tokenType: TokenConst.RBracket, identifier: "}" },
       { tokenType: TokenConst.Eof, identifier: "\0" },
     ];
-    expect(tokens).toBe(tokensExpected);
+    expect(tokens).toStrictEqual(tokensExpected);
   });
 });
