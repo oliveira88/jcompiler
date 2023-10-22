@@ -1,13 +1,13 @@
 import { describe, expect, test } from "@jest/globals";
-import { Lexer } from "../src/lexer";
+import { Lexer } from "../src/compiler/lexer";
 import fs from "fs";
-import { Token, TokenConst } from "../src/token";
+import { Token, TokenConst } from "../src/compiler/token";
 
 let file: string = "";
 
 describe("Lexer tokenize", () => {
   beforeAll(() => {
-    file = fs.readFileSync("example.java", "utf8");
+    file = fs.readFileSync("examples/example.java", "utf8");
   });
   test("Should return a list of tokens", () => {
     const lexer = new Lexer(file);

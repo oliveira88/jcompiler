@@ -1,5 +1,4 @@
 const KeywordsConst = {
-  Identifier: "Identifier",
   Package: "Package",
   Import: "Import",
   Class: "Class",
@@ -117,6 +116,7 @@ export const Keywords = {
 export const TokenConst = {
   ...KeywordsConst,
   ...SymbolsConst,
+  Identifier: "Identifier",
   Number: "Number",
   Illegal: "Illegal",
   Eof: "Eof",
