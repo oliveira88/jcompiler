@@ -47,40 +47,80 @@ const KeywordsConst = {
   Case: "Case",
   Goto: "Goto"
 } as const;
-
+//prettier-ignore
 const SymbolsConst = {
-  LBracket: "LBracket", //  {
-  RBracket: "RBracket", //  }
-  Semicolon: "Semicolon", //  ;
-  Colon: "Colon", //  :
-  Assign: "Assign", //  =
-  Eq: "Eq", //  ==
-  GreaterThan: "GreaterThan", //  >
-  LowerThan: "LowerThan", //  <
-  LParen: "LParen", //  (
-  RParen: "RParen", //  )
-  RParen: "RParen", //  )
-  Division: "Division", //  /
-  Mod: "Mod", //  %
-  Plus: "Plus", //  +
-  Increment: "Increment", //  ++
-  Minus: "Minus", //  -
-  Multiply: "Multiply", //  *
-
-  MultiplyAssign: "MultiplyAssign", //  *=
-  DivisionAssign: "DivisionAssign", //  /=
-  ModAssign: "ModAssign", //  %=
-  PlusAssign: "PlusAssign", //  +=
-  MinusAssign: "MinusAssign" //  -=
+  LBracket: "LBracket",               //  {
+  RBracket: "RBracket",               //  }
+  Semicolon: "Semicolon",             //  ;
+  Dot: "Dot",                         //  .
+  Colon: "Colon",                     //  :
+  Assign: "Assign",                   //  =
+  Eq: "Eq",                           //  ==
+  GreaterThan: "GreaterThan",         //  >
+  LowerThan: "LowerThan",             //  <
+  LParen: "LParen",                   //  (
+  RParen: "RParen",                   //  )
+  Division: "Division",               //  /
+  Mod: "Mod",                         //  %
+  Plus: "Plus",                       //  +
+  Increment: "Increment",             //  ++
+  Minus: "Minus",                     //  -
+  Multiply: "Multiply",               //  *
+  MultiplyAssign: "MultiplyAssign",   //  *=
+  DivisionAssign: "DivisionAssign",   //  /=
+  ModAssign: "ModAssign",             //  %=
+  PlusAssign: "PlusAssign",           //  +=
+  MinusAssign: "MinusAssign"          //  -=
 } as const;
+
+export const Keywords = {
+  package: "Package",
+  import: "Import",
+  class: "Class",
+  public: "Public",
+  protected: "Protected",
+  private: "Private",
+  static: "Static",
+  abstract: "Abstract",
+  final: "Final",
+  byte: "Byte",
+  short: "Short",
+  int: "Int",
+  long: "Long",
+  char: "Char",
+  float: "Float",
+  double: "Double",
+  boolean: "Boolean",
+  void: "Void",
+  if: "If",
+  else: "Else",
+  do: "Do",
+  while: "While",
+  switch: "Switch",
+  case: "Case",
+  goto: "Goto",
+  continue: "Continue",
+  const: "Const",
+  default: "Default",
+  extends: "Extends",
+  implements: "Implements",
+  instanceof: "Instanceof",
+  interface: "Interface",
+  native: "Native",
+  synchronized: "Sychronized",
+  this: "This",
+  throw: "Throw",
+  throws: "Throws",
+  transient: "Transient"
+} as const;
+
 export const TokenConst = {
   ...KeywordsConst,
   ...SymbolsConst,
-
-  //Number
   Number: "Number",
-  Illegal: "Illegal"
-  // Eof = "Eof",
+  Illegal: "Illegal",
+  Eof: "Eof",
+  Ignore: "Ignore"
 } as const;
 export type TokenKind = keyof typeof TokenConst;
 export type Token = {

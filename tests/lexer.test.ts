@@ -5,8 +5,7 @@ import { Token, TokenConst } from "../src/token";
 
 let file: string = "";
 
-
-describe("Lexer tokeninze", () => {
+describe("Lexer tokenize", () => {
   beforeAll(() => {
     file = fs.readFileSync("example.java", "utf8");
   });
@@ -102,7 +101,7 @@ describe("Lexer tokeninze", () => {
       { tokenType: TokenConst.Semicolon, identifier: ";" },
       { tokenType: TokenConst.RBracket, identifier: "}" },
       { tokenType: TokenConst.RBracket, identifier: "}" },
-      { tokenType: TokenConst.Eof, identifier: "\0" },
+      { tokenType: TokenConst.Eof, identifier: "\0" }
     ];
     expect(tokens).toStrictEqual(tokensExpected);
   });
