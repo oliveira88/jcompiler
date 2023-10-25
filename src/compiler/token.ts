@@ -125,5 +125,5 @@ export const TokenConst = {
 export type TokenKind = keyof typeof TokenConst;
 export type Token = {
   tokenType: TokenKind;
-  identifier: string;
+  identifier: string | null;
 };

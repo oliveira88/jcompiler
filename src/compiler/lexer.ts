@@ -68,9 +68,6 @@ export class Lexer {
     return tokens;
   }
   private nextToken() {
-    this.skipWhitespace();
-    // this.skipComments();
-
     switch (this.charAtMoment) {
       case "{":
         return this.newToken(TokenConst.LBracket, this.charAtMoment);
@@ -91,14 +88,31 @@ export class Lexer {
         }
         return this.newToken(TokenConst.Assign, this.charAtMoment);
       }
-      case "/":
+      case "/": {
+        if (this.peekChar() === "/") {
+          this.skipComments();
+          return this.newToken(TokenConst.Ignore, null, false);
+        } else if (this.peekChar() === "*") {
+          this.skipMultilineComments();
+          return this.newToken(TokenConst.Ignore, null, false);
+        }
         return this.newToken(TokenConst.Division, this.charAtMoment);
+      }
       case ">":
         return this.newToken(TokenConst.GreaterThan, this.charAtMoment);
       case "<":
         return this.newToken(TokenConst.LowerThan, this.charAtMoment);
       case ".":
         return this.newToken(TokenConst.Dot, this.charAtMoment);
+      case " ":
+      case "\n":
+      case "\t":
+      case "\r": {
+        this.skipWhitespace();
+        return this.newToken(TokenConst.Ignore, null, false);
+      }
+      case "\0":
+        return this.newToken(TokenConst.Eof, this.charAtMoment);
     }
 
     if (this.isAlphabetic(this.charAtMoment)) {
@@ -113,10 +127,10 @@ export class Lexer {
       return this.newToken(TokenConst.Number, num, false);
     }
     this.nextChar();
-    return this.newToken(TokenConst.Eof, this.charAtMoment);
+    return this.newToken(TokenConst.Illegal, this.charAtMoment);
   }
 
-  private newToken(tokenType: TokenKind, identifier: string, walk = true): Token {
+  private newToken(tokenType: TokenKind, identifier: string | null, walk = true): Token {
     if (walk) {
       this.nextChar();
     }
@@ -131,6 +145,24 @@ export class Lexer {
     ) {
       this.nextChar();
     }
+  }
+
+  private skipComments() {
+    this.nextChar();
+    this.nextChar();
+    while (this.charAtMoment !== "\n") {
+      this.nextChar();
+    }
+  }
+
+  private skipMultilineComments() {
+    this.nextChar();
+    this.nextChar();
+    while (this.charAtMoment !== "*" && this.peekChar() !== "/") {
+      this.nextChar();
+    }
+    this.nextChar();
+    this.nextChar();
   }
 
   private peekChar(): string {
