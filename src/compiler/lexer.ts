@@ -81,6 +81,15 @@ export class Lexer {
         return this.newToken(TokenConst.LParen, this.charAtMoment);
       case ")":
         return this.newToken(TokenConst.RParen, this.charAtMoment);
+      case '"':
+        const { literal, valid } = this.readLiteral();
+        if (valid) {
+          return this.newToken(TokenConst.Literal, literal);
+        } else {
+          return this.newToken(TokenConst.Illegal, literal, false);
+        }
+      case "'":
+        return this.newToken(TokenConst.SingleQuote, this.charAtMoment);
       case "=": {
         if (this.peekChar() === "=") {
           this.nextChar();
@@ -115,16 +124,24 @@ export class Lexer {
         return this.newToken(TokenConst.Eof, this.charAtMoment);
     }
 
+    if (this.isNumber(this.charAtMoment)) {
+      if (this.isAlphabetic(this.peekChar())) {
+        const identifier = this.readIdentifier();
+        return this.newToken(TokenConst.Illegal, identifier, false);
+      }
+      const num = this.readNumber();
+      return this.newToken(TokenConst.Number, num, false);
+    }
     if (this.isAlphabetic(this.charAtMoment)) {
       const identifier = this.readIdentifier();
+      // if (this.isIllegalIdentifier(identifier)) {
+      //   return this.newToken(TokenConst.Illegal, identifier);
+      // }
       const keyword = this.keywords[identifier as keyof typeof this.keywords];
       if (keyword) {
         return keyword;
       }
       return this.newToken(TokenConst.Identifier, identifier, false);
-    } else if (this.isNumber(this.charAtMoment)) {
-      const num = this.readNumber();
-      return this.newToken(TokenConst.Number, num, false);
     }
     this.nextChar();
     return this.newToken(TokenConst.Illegal, this.charAtMoment);
@@ -182,6 +199,7 @@ export class Lexer {
     return (
       ("a".charCodeAt(0) <= char && "z".charCodeAt(0) >= char) ||
       ("A".charCodeAt(0) <= char && "Z".charCodeAt(0) >= char) ||
+      char === "$".charCodeAt(0) ||
       char === "_".charCodeAt(0)
     );
   }
@@ -209,5 +227,24 @@ export class Lexer {
       this.nextChar();
     }
     return this.input.slice(initial, this.position);
+  }
+
+  private readLiteral(): { literal: string; valid: boolean } {
+    this.nextChar();
+    const initial = this.position;
+    while (this.charAtMoment !== '"') {
+      if (this.charAtMoment === "\n") {
+        return { literal: this.input.slice(initial, this.position), valid: false };
+      }
+      this.nextChar();
+    }
+    return { literal: this.input.slice(initial, this.position), valid: true };
+  }
+
+  private isIllegalIdentifier(identifier: string): boolean {
+    for (let i = 0; i < identifier.length; i++) {
+      if (!this.isAlphabetic(identifier[i])) return true;
+    }
+    return false;
   }
 }
