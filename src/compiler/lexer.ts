@@ -81,6 +81,15 @@ export class Lexer {
         return this.newToken(TokenConst.LParen, this.charAtMoment);
       case ")":
         return this.newToken(TokenConst.RParen, this.charAtMoment);
+      case '"':
+        const { literal, valid } = this.readLiteral();
+        if (valid) {
+          return this.newToken(TokenConst.Literal, literal);
+        } else {
+          return this.newToken(TokenConst.Illegal, literal, false);
+        }
+      case "'":
+        return this.newToken(TokenConst.SingleQuote, this.charAtMoment);
       case "=": {
         if (this.peekChar() === "=") {
           this.nextChar();
@@ -209,5 +218,24 @@ export class Lexer {
       this.nextChar();
     }
     return this.input.slice(initial, this.position);
+  }
+
+  private readLiteral(): { literal: string; valid: boolean } {
+    this.nextChar();
+    const initial = this.position;
+    while (this.charAtMoment !== '"') {
+      if (this.charAtMoment === "\n") {
+        return { literal: this.input.slice(initial, this.position), valid: false };
+      }
+      this.nextChar();
+    }
+    return { literal: this.input.slice(initial, this.position), valid: true };
+  }
+
+  private isIllegalIdentifier(identifier: string): boolean {
+    for (let i = 0; i < identifier.length; i++) {
+      if (!this.isAlphabetic(identifier[i])) return true;
+    }
+    return false;
   }
 }

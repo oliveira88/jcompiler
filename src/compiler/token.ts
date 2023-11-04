@@ -69,7 +69,9 @@ const SymbolsConst = {
   DivisionAssign: "DivisionAssign",   //  /=
   ModAssign: "ModAssign",             //  %=
   PlusAssign: "PlusAssign",           //  +=
-  MinusAssign: "MinusAssign"          //  -=
+  MinusAssign: "MinusAssign",         //  -=
+  Quote: "Quote",                     //  "
+  SingleQuote: "SingleQuote",         //  '
 } as const;
 
 export const Keywords = {
@@ -118,6 +120,7 @@ export const TokenConst = {
   ...SymbolsConst,
   Identifier: "Identifier",
   Number: "Number",
+  Literal: "Literal",
   Illegal: "Illegal",
   Eof: "Eof",
   Ignore: "Ignore"

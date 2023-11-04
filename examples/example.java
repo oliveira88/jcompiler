@@ -9,6 +9,7 @@ public class Example {
 
   public Example() {
     names = new ArrayList<>();
+    names = "hello";
   }
 
   public void addName(String name) {
