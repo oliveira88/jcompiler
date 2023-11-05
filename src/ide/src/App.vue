@@ -1,5 +1,5 @@
 <template>
-  <prism-editor class="my-editor" v-model="code" :highlight="highlighter" line-numbers ref="editor" @click="focus"></prism-editor>
+  <prism-editor class="my-editor" v-model="code" :highlight="highlighter" line-numbers ref="editor" @blur="blur"></prism-editor>
 </template>
 
 <script lang="ts">
@@ -18,8 +18,7 @@
     },
     data() {
       return {
-         code: `
-package example;
+         code: `package example;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +43,13 @@ public class Example {
     },
     methods: {
       highlighter(code) {
-        return highlight(code, languages.java); // languages.<insert language> to return html with markup
+        return highlight(code, languages.java);
       },
-      focus() {
-        console.log(this.$refs.editor)
-      },
+      blur() {
+        this.$refs.editor.$refs.textarea.focus();
+        this.$refs.editor.$refs.textarea.selectionStart = this.$refs.editor.$refs.textarea.value.length + 1;
+        this.$refs.editor.$refs.textarea.selectionEnd = this.$refs.editor.$refs.textarea.value.length + 2;
+      }
     },
   };
 </script>
