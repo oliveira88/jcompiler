@@ -128,5 +128,7 @@ export const TokenConst = {
 export type TokenKind = keyof typeof TokenConst;
 export type Token = {
   tokenType: TokenKind;
-  identifier: string | null;
+  lexeme?: string;
+  literal: string | null;
+  line?: number;
 };
