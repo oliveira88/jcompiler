@@ -22,11 +22,6 @@ export class JCompiler {
       this.runPrompt();
     }
     return;
-    const file = fs.readFileSync("examples/example.java", "utf8");
-    const lexer = new Lexer(`String nçame = "Ola";
-    `);
-    const tokens = lexer.tokenize();
-    console.log(tokens);
   }
 
   private static runFile(filePath: string) {
@@ -55,9 +50,6 @@ export class JCompiler {
     const tokens = scanner.scanTokens();
     const parser = new Parser(tokens);
     parser.parse();
-    // for (const token of tokens) {
-    //   console.log(token);
-    // }
   }
 
   static error(line: number, message: string) {
