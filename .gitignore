@@ -1,2 +1,7 @@
 node_modules
 dist
+.idea
+/grammars
+/lib
+/generated
+/src/ide2
