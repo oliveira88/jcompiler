@@ -2,6 +2,7 @@ import fs from "fs";
 import readline from "readline";
 import { Lexer } from "./compiler/lexer";
 import { Scanner } from "./compiler/scanner";
+import { Parser } from "./compiler/parser";
 const read = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -17,6 +18,7 @@ export class JCompiler {
     } else if (args.length === 3) {
       this.runFile(args[2]);
     } else {
+      // this.runFile("examples/Example.java");
       this.runPrompt();
     }
     return;
@@ -32,6 +34,8 @@ export class JCompiler {
     this.run(file);
     if (this.hadError) {
       process.exit(65);
+    } else {
+      process.exit(0);
     }
   }
   private static runPrompt() {
@@ -49,9 +53,11 @@ export class JCompiler {
   private static run(source: string) {
     const scanner = new Scanner(source);
     const tokens = scanner.scanTokens();
-    for (const token of tokens) {
-      console.log(token);
-    }
+    const parser = new Parser(tokens);
+    parser.parse();
+    // for (const token of tokens) {
+    //   console.log(token);
+    // }
   }
 
   static error(line: number, message: string) {

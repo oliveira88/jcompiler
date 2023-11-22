@@ -136,7 +136,7 @@ export class Scanner {
         } else if (this.isAlpha(c)) {
           this.identifier();
         } else {
-          JCompiler.error(this.line, "Unexpected character.");
+          JCompiler.error(this.line, `Unexpected character ${c}.`);
         }
         break;
     }
