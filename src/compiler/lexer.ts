@@ -151,7 +151,7 @@ export class Lexer {
     if (walk) {
       this.nextChar();
     }
-    return { tokenType, identifier };
+    return { tokenType, literal: identifier };
   }
   private skipWhitespace() {
     while (
