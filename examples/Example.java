@@ -3,7 +3,6 @@ int num3r0 = 5;
 package example;
 import java.util.ArrayList;
 import java.util.List;
-
 public class Example {
   private ArrayList<String> names;
 
