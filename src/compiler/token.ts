@@ -52,6 +52,7 @@ const SymbolsConst = {
   RBracket: "RBracket",               //  }
   Semicolon: "Semicolon",             //  ;
   Dot: "Dot",                         //  .
+  Comma: "Comma",                     //  :
   Colon: "Colon",                     //  :
   Assign: "Assign",                   //  =
   Eq: "Eq",                           //  ==
