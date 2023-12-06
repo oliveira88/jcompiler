@@ -96,12 +96,14 @@ export class Scanner {
       case '"':
         this.literal();
         break;
-      case ">":
-        this.addToken(TokenConst.GreaterThan);
+      case ">": {
+        this.addToken(this.match("=") ?  TokenConst.GreaterOrEqualThan : TokenConst.GreaterThan);
         break;
-      case "<":
-        this.addToken(TokenConst.LowerThan);
+      }
+      case "<": {
+        this.addToken(this.match("=") ?  TokenConst.LowerOrEqualThan : TokenConst.LowerThan);
         break;
+      }
       case ".":
         this.addToken(TokenConst.Dot);
         break;
@@ -119,7 +121,24 @@ export class Scanner {
         this.addToken(this.match("=") ? TokenConst.Eq : TokenConst.Assign);
         break;
       }
-
+      case "!": {
+        if(this.match("=")) {
+          this.addToken(TokenConst.NotEq);
+        }
+        break;
+      }
+      case "|": {
+        if(this.match("|")) {
+          this.addToken(TokenConst.Or);
+        }
+        break;
+      }
+      case "&": {
+        if(this.match("&")) {
+          this.addToken(TokenConst.And);
+        }
+        break;
+      }
       case " ":
       case "\t":
       case "\r":

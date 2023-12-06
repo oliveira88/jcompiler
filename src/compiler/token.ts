@@ -48,31 +48,42 @@ const KeywordsConst = {
 } as const;
 //prettier-ignore
 const SymbolsConst = {
-  LBracket: "LBracket",               //  {
-  RBracket: "RBracket",               //  }
-  Semicolon: "Semicolon",             //  ;
-  Dot: "Dot",                         //  .
-  Comma: "Comma",                     //  :
-  Colon: "Colon",                     //  :
-  Assign: "Assign",                   //  =
-  Eq: "Eq",                           //  ==
-  GreaterThan: "GreaterThan",         //  >
-  LowerThan: "LowerThan",             //  <
-  LParen: "LParen",                   //  (
-  RParen: "RParen",                   //  )
-  Division: "Division",               //  /
-  Mod: "Mod",                         //  %
-  Plus: "Plus",                       //  +
-  Increment: "Increment",             //  ++
-  Minus: "Minus",                     //  -
-  Multiply: "Multiply",               //  *
-  MultiplyAssign: "MultiplyAssign",   //  *=
-  DivisionAssign: "DivisionAssign",   //  /=
-  ModAssign: "ModAssign",             //  %=
-  PlusAssign: "PlusAssign",           //  +=
-  MinusAssign: "MinusAssign",         //  -=
-  Quote: "Quote",                     //  "
-  SingleQuote: "SingleQuote",         //  '
+  LBracket: "LBracket",                     //  {
+  RBracket: "RBracket",                     //  }
+  Semicolon: "Semicolon",                   //  ;
+  Dot: "Dot",                               //  .
+  Comma: "Comma",                           //  ,
+  Colon: "Colon",                           //  :
+  Assign: "Assign",                         //  =
+  Eq: "Eq",                                 //  ==
+  NotEq: "NotEq",                           //  !=
+  GreaterThan: "GreaterThan",               //  >
+  GreaterOrEqualThan: "GreaterOrEqualThan", //  >=
+  LowerThan: "LowerThan",                   //  <
+  LowerOrEqualThan: "LowerOrEqualThan",     //  <=
+  LParen: "LParen",                         //  (
+  RParen: "RParen",                         //  )
+  Division: "Division",                     //  /
+  Mod: "Mod",                               //  %
+  Plus: "Plus",                             //  +
+  Increment: "Increment",                   //  ++
+  Minus: "Minus",                           //  -
+  Multiply: "Multiply",                     //  *
+  MultiplyAssign: "MultiplyAssign",         //  *=
+  DivisionAssign: "DivisionAssign",         //  /=
+  ModAssign: "ModAssign",                   //  %=
+  PlusAssign: "PlusAssign",                 //  +=
+  MinusAssign: "MinusAssign",               //  -=
+  LeftShiftAssign: "LeftShiftAssign",       //  <<=
+  RightShiftAssign: "RightShiftAssign",     //  >>=
+  ULeftShiftAssign: "ULeftShiftAssign",     //  <<<=
+  URightShiftAssign: "URightShiftAssign",   //  >>>=
+  AndAssign: "AndAssign",                   //  &=
+  XorAssign: "XorAssign",                   //  ^=
+  Quote: "Quote",                           //  "
+  SingleQuote: "SingleQuote",               //  '
+  Or: "Or",                                 //  ||
+  And: "And",                               //  &&
 } as const;
 
 export const Keywords = {
