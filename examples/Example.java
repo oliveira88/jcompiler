@@ -4,18 +4,18 @@ package example;
 import java.util.ArrayList;
 import java.util.List;
 public class Example {
-  private ArrayList<String> names;
+  //private int names;
 
-  public Example() {
-    names = new ArrayList<>();
-    names = "hello";
-  }
+   //public Example() {
+     //names = Example();
+     //names = 12;
+   //}
 
-  public void addName(String name) {
-    names.add(name);
-  }
+   public void addName(int name) {
+     {}
+   }
 
-  public List<String> getNames() {
-    return new ArrayList<>(names);
-  }
+  // public void getNames() {
+  //   return new Name(names);
+  // }
 }
