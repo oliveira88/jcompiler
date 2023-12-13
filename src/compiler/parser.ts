@@ -9,107 +9,6 @@ export class Parser {
     return this.parseProgram();
   }
 
-  private matchClassModifier() {
-    return (
-      this.match(TokenConst.Public) ||
-      this.match(TokenConst.Abstract) ||
-      this.match(TokenConst.Final)
-    );
-  }
-
-  private matchModifiers() {
-    return (
-      this.match(TokenConst.Public) ||
-      this.match(TokenConst.Protected) ||
-      this.match(TokenConst.Private) ||
-      this.match(TokenConst.Static) ||
-      this.match(TokenConst.Final)
-    );
-  }
-
-  private checkType() {
-    return (
-      this.check(TokenConst.Byte) ||
-      this.check(TokenConst.Short) ||
-      this.check(TokenConst.Int) ||
-      this.check(TokenConst.Long) ||
-      this.check(TokenConst.Char) ||
-      this.check(TokenConst.Float) ||
-      this.check(TokenConst.Double) ||
-      this.check(TokenConst.Boolean) ||
-      this.check(TokenConst.Void)
-    );
-  }
-
-  private checkAssignOp() {
-    return (
-      this.check(TokenConst.Assign) ||
-      this.check(TokenConst.MultiplyAssign) ||
-      this.check(TokenConst.DivisionAssign) ||
-      this.check(TokenConst.ModAssign) ||
-      this.check(TokenConst.PlusAssign) ||
-      this.check(TokenConst.MinusAssign) ||
-      this.check(TokenConst.LeftShiftAssign) ||
-      this.check(TokenConst.RightShiftAssign) ||
-      this.check(TokenConst.URightShiftAssign) ||
-      this.check(TokenConst.ULeftShiftAssign) ||
-      this.check(TokenConst.AndAssign) ||
-      this.check(TokenConst.XorAssign)
-    );
-  }
-
-  private match(...types: Array<TokenKind>) {
-    for (const type of types) {
-      if (this.check(type)) {
-        this.advance();
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private check(type: TokenKind) {
-    if (this.isAtEnd()) {
-      return false;
-    }
-    return this.peek().tokenType === type;
-  }
-
-  private advance() {
-    if (!this.isAtEnd()) {
-      this.current++;
-    }
-    return this.previous();
-  }
-
-  private consume(type: TokenKind, message: string = "") {
-    if (this.check(type)) {
-      return this.advance();
-    }
-    console.error(message);
-  }
-
-  private consume2(type1: TokenKind, type2:TokenKind, message: string = "") {
-    if (this.check(type1) || this.check(type2)) {
-      return this.advance();
-    }
-    console.error(message);
-  }
-  private isAtEnd() {
-    return this.currentToken.tokenType === TokenConst.Eof;
-  }
-
-  get currentToken() {
-    return this.peek();
-  }
-  private peek() {
-    return this.tokens[this.current];
-  }
-
-  private previous() {
-    return this.tokens[this.current - 1];
-  }
-
   parseProgram() {
     this.parsePackageDeclaration();
     this.parseImportDeclarations();
@@ -591,5 +490,106 @@ export class Parser {
       this.consume(TokenConst.Comma, "Expect ',' after argument.");
       this.parseArgumentList();
     }
+  }
+  
+  private matchClassModifier() {
+    return (
+      this.match(TokenConst.Public) ||
+      this.match(TokenConst.Abstract) ||
+      this.match(TokenConst.Final)
+    );
+  }
+
+  private matchModifiers() {
+    return (
+      this.match(TokenConst.Public) ||
+      this.match(TokenConst.Protected) ||
+      this.match(TokenConst.Private) ||
+      this.match(TokenConst.Static) ||
+      this.match(TokenConst.Final)
+    );
+  }
+
+  private checkType() {
+    return (
+      this.check(TokenConst.Byte) ||
+      this.check(TokenConst.Short) ||
+      this.check(TokenConst.Int) ||
+      this.check(TokenConst.Long) ||
+      this.check(TokenConst.Char) ||
+      this.check(TokenConst.Float) ||
+      this.check(TokenConst.Double) ||
+      this.check(TokenConst.Boolean) ||
+      this.check(TokenConst.Void)
+    );
+  }
+
+  private checkAssignOp() {
+    return (
+      this.check(TokenConst.Assign) ||
+      this.check(TokenConst.MultiplyAssign) ||
+      this.check(TokenConst.DivisionAssign) ||
+      this.check(TokenConst.ModAssign) ||
+      this.check(TokenConst.PlusAssign) ||
+      this.check(TokenConst.MinusAssign) ||
+      this.check(TokenConst.LeftShiftAssign) ||
+      this.check(TokenConst.RightShiftAssign) ||
+      this.check(TokenConst.URightShiftAssign) ||
+      this.check(TokenConst.ULeftShiftAssign) ||
+      this.check(TokenConst.AndAssign) ||
+      this.check(TokenConst.XorAssign)
+    );
+  }
+
+  private match(...types: Array<TokenKind>) {
+    for (const type of types) {
+      if (this.check(type)) {
+        this.advance();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private check(type: TokenKind) {
+    if (this.isAtEnd()) {
+      return false;
+    }
+    return this.peek().tokenType === type;
+  }
+
+  private advance() {
+    if (!this.isAtEnd()) {
+      this.current++;
+    }
+    return this.previous();
+  }
+
+  private consume(type: TokenKind, message: string = "") {
+    if (this.check(type)) {
+      return this.advance();
+    }
+    console.error(message);
+  }
+
+  private consume2(type1: TokenKind, type2:TokenKind, message: string = "") {
+    if (this.check(type1) || this.check(type2)) {
+      return this.advance();
+    }
+    console.error(message);
+  }
+  private isAtEnd() {
+    return this.currentToken.tokenType === TokenConst.Eof;
+  }
+
+  get currentToken() {
+    return this.peek();
+  }
+  private peek() {
+    return this.tokens[this.current];
+  }
+
+  private previous() {
+    return this.tokens[this.current - 1];
   }
 }
