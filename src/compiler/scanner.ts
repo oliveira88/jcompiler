@@ -6,6 +6,7 @@ export class Scanner {
   private start: number = 0;
   private current: number = 0;
   private line: number = 1;
+  private column: number = 1;
   private keywords: Record<string, TokenKind> = {
     package: TokenConst.Package,
     import: TokenConst.Import,
@@ -64,7 +65,8 @@ export class Scanner {
       tokenType: "Eof",
       lexeme: "",
       literal: null,
-      line: this.line
+      line: this.line,
+      column: this.column,
     });
     return this.tokens;
   }
@@ -174,7 +176,12 @@ export class Scanner {
   }
 
   private advance(): string {
-    return this.source.charAt(this.current++);
+    const char = this.source.charAt(this.current++);
+    this.column++;
+    if(char === "\n") {
+      this.column = 1;
+    }
+    return char;
   }
 
   private addToken(tokenType: Token["tokenType"], literal: string | null = null) {
@@ -183,7 +190,8 @@ export class Scanner {
       tokenType,
       lexeme: text,
       literal,
-      line: this.line
+      line: this.line,
+      column: this.column,
     });
   }
 

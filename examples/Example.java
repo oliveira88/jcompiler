@@ -13,6 +13,6 @@ public class Example {
    }
 
   public void getNames() {
-    return new Name(names);
+    return names;
   }
 }

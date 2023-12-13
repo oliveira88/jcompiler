@@ -143,4 +143,5 @@ export type Token = {
   lexeme?: string;
   literal: string | null;
   line?: number;
+  column?: number;
 };

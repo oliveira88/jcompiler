@@ -569,14 +569,16 @@ export class Parser {
     if (this.check(type)) {
       return this.advance();
     }
-    console.error(message);
+    console.error(`${message} [Ln ${this.currentToken.line}, Col ${this.currentToken.column}]`);
+    return this.advance();
   }
 
   private consume2(type1: TokenKind, type2:TokenKind, message: string = "") {
     if (this.check(type1) || this.check(type2)) {
       return this.advance();
     }
-    console.error(message);
+    console.error(`${message} [Ln ${this.currentToken.line}, Col ${this.currentToken.column}]`);
+    return this.advance();
   }
   private isAtEnd() {
     return this.currentToken.tokenType === TokenConst.Eof;
