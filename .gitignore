@@ -1,6 +1,7 @@
 node_modules
 dist
 .idea
+.idea/*
 /grammars
 /lib
 /generated

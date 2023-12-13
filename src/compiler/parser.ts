@@ -88,6 +88,13 @@ export class Parser {
     }
     console.error(message);
   }
+
+  private consume2(type1: TokenKind, type2:TokenKind, message: string = "") {
+    if (this.check(type1) || this.check(type2)) {
+      return this.advance();
+    }
+    console.error(message);
+  }
   private isAtEnd() {
     return this.currentToken.tokenType === TokenConst.Eof;
   }
@@ -153,9 +160,6 @@ export class Parser {
     }
     this.consume(TokenConst.RBracket, "Expect '}' after class body.");
   }
-  parseClassBodyDeclarations() {
-
-  }
   parseClassBodyDeclaration() {
     this.matchModifiers();
     this.parseType();
@@ -193,8 +197,7 @@ export class Parser {
     }
   }
   parseFieldMethodDeclaration() {
-    if (!this.check(TokenConst.LParen)) {
-      this.parseVariableDeclarators();
+    if(this.parseVariableDeclarators()) {
       this.consume(TokenConst.Semicolon, "Expect ';' after variable declaration.");
     } else {
       this.parseMethodDeclaration();
@@ -202,6 +205,7 @@ export class Parser {
   }
 
   parseVariableDeclarators() {
+    if(this.check(TokenConst.LParen)) { return false; }
     if (this.check(TokenConst.Assign)) {
       this.consume(TokenConst.Assign, "Expect '=' after variable name.");
       this.parseExpression();
@@ -210,6 +214,7 @@ export class Parser {
       this.consume(TokenConst.Identifier, "Expect identifier name after ','.");
       this.parseVariableDeclarators();
     }
+    return true;
   }
 
   parseMethodDeclaration() {
@@ -234,7 +239,8 @@ export class Parser {
   parseFormalParameterList() {
     while (this.check(TokenConst.Comma)) {
       this.consume(TokenConst.Comma, "Expect ',' after parameter.");
-      this.consume(TokenConst.Identifier, "Expect identifier name after ','.");
+      this.parseType();
+      this.consume(TokenConst.Identifier, "Expect identifier name after type.");
       this.parseFormalParameterList();
     }
   }
@@ -245,86 +251,89 @@ export class Parser {
     this.consume(TokenConst.RBracket, "Expect '}' after block.");
   }
   parseBlockStatement() {
-    if(this.checkType()) {
-      this.parseLocalVariableDeclaration();
+    if(this.parseLocalVariableDeclaration()) {
       this.consume(TokenConst.Semicolon, "Expect ';' after variable declaration.");
       this.parseBlockStatement();
-    } else if(this.check(TokenConst.LBracket)) {
-      this.parseStatement()
+    } else if(this.parseStatement()){
       this.parseBlockStatement();
     }
   }
   parseLocalVariableDeclaration() {
-    this.parseType();
-    this.consume(TokenConst.Identifier, "Expect identifier name after type.");
-    this.parseVariableDeclarators();
+    if(this.checkType()) {
+      this.parseType();
+      this.consume(TokenConst.Identifier, "Expect identifier name after type.");
+      this.parseVariableDeclarators();
+      return true;
+    }
+    return false;
   }
   parseStatement() {
     switch (true) {
       case this.check(TokenConst.LBracket): {
         this.parseBlock();
-        break;
+        return true;
       }
       case this.check(TokenConst.Semicolon): {
         this.parseEmptyStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.Identifier): {
         this.consume(TokenConst.Identifier, "Expect identifier name after type.");
         this.parseStatementExpression();
         this.consume(TokenConst.Semicolon, "Expect ';' after statement.");
-        break;
+        return true;
       }
       case this.check(TokenConst.Do): {
         this.parseDoStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.Break): {
         this.parseBreakStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.Continue): {
         this.parseContinueStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.Return): {
         this.parseReturnStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.If): {
         this.parseIfStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.While): {
         this.parseWhileStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.Try): {
         this.parseTryStatement();
-        break;
+        return true;
       }
       case this.check(TokenConst.New): {
         this.parseClassInstanceCreationExpression();
-        break;
+        return true;
       }
     }
+    return false;
   }
 
   parseEmptyStatement() {
     this.consume(TokenConst.Semicolon, "Expect ';' after statement.");
   }
   parseStatementExpression() {
-    if(this.checkAssignOp()) {
-      this.parseAssignment();
-    } else if(this.check(TokenConst.LParen)) {
-      this.parseMethodInvocation();
-    } else if(this.check(TokenConst.Colon)) {
-      this.parseLabeledStatement();
+    if (this.parseAssignment() || this.parseMethodInvocation() || this.parseLabeledStatement()) {
+      return;
     }
   }
   parseLabeledStatement() {
-    this.consume(TokenConst.Colon, "Expect ':' after label name.");
-    this.parseStatement();
+    if(this.check(TokenConst.Colon)) {
+      this.consume(TokenConst.Colon, "Expect ':' after label name.");
+      this.parseStatement();
+      return true;
+    }
+    return false;
   }
 
   parseIfStatement() {
@@ -384,11 +393,10 @@ export class Parser {
     this.parseCatchesStatement();
   }
   parseCatchesStatement() {
-    if(this.check(TokenConst.Catch)) {
-      this.parseCatchClause();
+    if(this.parseCatchClause()) {
       this.parseFinally();
-    } else if(this.check(TokenConst.Finally)) {
-      this.parseFinally();
+    } else if (this.parseFinally()){
+      return;
     }
   }
   parseCatchClause() {
@@ -399,15 +407,25 @@ export class Parser {
       this.consume(TokenConst.RParen, "Expect ')' after parameter.");
       this.parseBlock();
       this.parseCatchClause();
+      return true;
     }
+    return false
   }
   parseFinally() {
-    this.consume(TokenConst.Finally, "Expect 'finally' keyword.");
-    this.parseBlock();
+    if(this.check(TokenConst.Finally)){
+      this.consume(TokenConst.Finally, "Expect 'finally' keyword.");
+      this.parseBlock();
+      return true;
+    }
+    return false;
   }
   parseAssignment() {
-    this.parseAssignmentOperator();
-    this.parseExpression();
+    if(this.checkAssignOp()) {
+      this.parseAssignmentOperator();
+      this.parseExpression();
+      return true;
+    }
+    return false;
   }
   parseAssignmentOperator() {
     const allowedOperators: Array<Partial<TokenKind>> = [
@@ -434,8 +452,8 @@ export class Parser {
     this.parseExpression2();
   }
   parseComparationExpression() {
-    this.parseOperationalExpression();
     this.parseRelationalExpression();
+    this.parseOperationalExpression();
   }
   parseExpression2() {
     if(this.check(TokenConst.Or)) {
@@ -495,9 +513,11 @@ export class Parser {
   parseAdditiveExpression() {
     if(this.check(TokenConst.Plus)) {
       this.consume(TokenConst.Plus, "Expect '+' after unary expression.");
+      this.parseTerm();
       this.parseAdditiveExpression();
     } else if(this.check(TokenConst.Minus)) {
       this.consume(TokenConst.Minus, "Expect '-' after unary expression.");
+      this.parseTerm();
       this.parseAdditiveExpression();
     }
   }
@@ -510,15 +530,16 @@ export class Parser {
       case this.check(TokenConst.Multiply): {
         this.consume(TokenConst.Multiply, "Expect '*' after term.");
         this.parseUnaryExpression();
+        this.parseMultiplicativeExpression();
         break;
       }
       case this.check(TokenConst.Division): {
         this.consume(TokenConst.Division, "Expect '/' after term.");
         this.parseUnaryExpression();
+        this.parseMultiplicativeExpression();
         break;
       }
       case this.check(TokenConst.Mod): {
-        this.parseMultiplicativeExpression();
         this.consume(TokenConst.Mod, "Expect '%' after term.");
         this.parseUnaryExpression();
         this.parseMultiplicativeExpression();
@@ -529,14 +550,14 @@ export class Parser {
   parseUnaryExpression() {
     if(this.check(TokenConst.Plus)) {
       this.consume(TokenConst.Plus, "Expect '+' after unary expression.");
-      this.consume(TokenConst.Identifier, "Expect identifier name after unary expression.");
+      this.consume2(TokenConst.Identifier, TokenConst.Number, "Expect identifier name after unary expression.");
       this.parseMethodInvocation();
     } else if(this.check(TokenConst.Minus)) {
       this.consume(TokenConst.Minus, "Expect '-' after unary expression.");
-      this.consume(TokenConst.Identifier, "Expect identifier name after unary expression.");
+      this.consume2(TokenConst.Identifier, TokenConst.Number, "Expect identifier name after unary expression.");
       this.parseMethodInvocation();
-    } else {
-      this.consume(TokenConst.Identifier, "Expect identifier name after unary expression.");
+    } else if(this.check(TokenConst.Identifier) || this.check(TokenConst.Number)) {
+      this.consume2(TokenConst.Identifier, TokenConst.Number, "Expect identifier name after unary expression.");
       this.parseMethodInvocation();
     }
   }
@@ -545,6 +566,7 @@ export class Parser {
       this.consume(TokenConst.LParen, "Expect '(' after method name.");
       this.parseArgumentList();
       this.consume(TokenConst.RParen, "Expect ')' after method parameters.");
+      return true;
     } else if(this.check(TokenConst.Super)) {
       this.consume(TokenConst.Super, "Expect 'super' keyword.");
       this.consume(TokenConst.Dot, "Expect '.' after super keyword.");
@@ -552,7 +574,9 @@ export class Parser {
       this.consume(TokenConst.LParen, "Expect '(' after identifier.");
       this.parseArgumentList();
       this.consume(TokenConst.RParen, "Expect ')' after method parameters.");
+      return true;
     }
+    return false;
   }
   parseClassInstanceCreationExpression() {
     this.consume(TokenConst.New, "Expect 'new' keyword.");
