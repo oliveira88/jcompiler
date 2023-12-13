@@ -81,6 +81,8 @@ export class Lexer {
         return this.newToken(TokenConst.LParen, this.charAtMoment);
       case ")":
         return this.newToken(TokenConst.RParen, this.charAtMoment);
+      case ",":
+        return this.newToken(TokenConst.Comma, this.charAtMoment);
       case '"':
         const { literal, valid } = this.readLiteral();
         if (valid) {
@@ -151,7 +153,7 @@ export class Lexer {
     if (walk) {
       this.nextChar();
     }
-    return { tokenType, identifier };
+    return { tokenType, literal: identifier };
   }
   private skipWhitespace() {
     while (
