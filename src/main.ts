@@ -1,7 +1,7 @@
 import fs from "fs";
 import readline from "readline";
 import { Parser } from "./compiler/parser";
-import { Scanner } from "./compiler/scanner";
+import { Lexer } from "./compiler/lexer";
 const read = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -45,11 +45,10 @@ export class JCompiler {
   }
 
   private static run(source: string) {
-    const scanner = new Scanner(source);
-    const tokens = scanner.scanTokens();
-    // console.log(tokens);
+    const lexer = new Lexer(source);
+    const tokens = lexer.scanTokens();
     const parser = new Parser(tokens);
-    parser.parse();
+    const ast = parser.parse();
   }
 
   static error(line: number, message: string) {

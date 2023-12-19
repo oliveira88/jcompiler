@@ -1,203 +1,262 @@
+import { JCompiler } from "../main";
 import { Token, TokenConst, TokenKind } from "./token";
 
 export class Lexer {
-  private position: number = 0;
-  private readPosition: number = 0;
-  private charAtMoment!: string;
-  private keywords = {
-    package: this.newToken(TokenConst.Package, "package", false),
-    import: this.newToken(TokenConst.Import, "import", false),
-    class: this.newToken(TokenConst.Class, "class", false),
-    public: this.newToken(TokenConst.Public, "public", false),
-    protected: this.newToken(TokenConst.Protected, "protected", false),
-    private: this.newToken(TokenConst.Private, "private", false),
-    static: this.newToken(TokenConst.Static, "static", false),
-    abstract: this.newToken(TokenConst.Abstract, "abstract", false),
-    final: this.newToken(TokenConst.Final, "final", false),
-    byte: this.newToken(TokenConst.Byte, "byte", false),
-    short: this.newToken(TokenConst.Short, "short", false),
-    int: this.newToken(TokenConst.Int, "int", false),
-    long: this.newToken(TokenConst.Long, "long", false),
-    char: this.newToken(TokenConst.Char, "char", false),
-    float: this.newToken(TokenConst.Float, "float", false),
-    double: this.newToken(TokenConst.Double, "double", false),
-    boolean: this.newToken(TokenConst.Boolean, "boolean", false),
-    void: this.newToken(TokenConst.Void, "void", false),
-    if: this.newToken(TokenConst.If, "if", false),
-    else: this.newToken(TokenConst.Else, "else", false),
-    do: this.newToken(TokenConst.Do, "do", false),
-    while: this.newToken(TokenConst.While, "while", false),
-    switch: this.newToken(TokenConst.Switch, "switch", false),
-    case: this.newToken(TokenConst.Case, "case", false),
-    goto: this.newToken(TokenConst.Goto, "goto", false),
-    continue: this.newToken(TokenConst.Continue, "continue", false),
-    const: this.newToken(TokenConst.Const, "const", false),
-    default: this.newToken(TokenConst.Default, "default", false),
-    extends: this.newToken(TokenConst.Extends, "extends", false),
-    implements: this.newToken(TokenConst.Implements, "implements", false),
-    instanceof: this.newToken(TokenConst.Instanceof, "instanceof", false),
-    interface: this.newToken(TokenConst.Interface, "interface", false),
-    native: this.newToken(TokenConst.Native, "native", false),
-    synchronized: this.newToken(TokenConst.Synchronized, "sychronized", false),
-    this: this.newToken(TokenConst.This, "this", false),
-    throw: this.newToken(TokenConst.This, "throw", false),
-    throws: this.newToken(TokenConst.This, "throws", false),
-    transient: this.newToken(TokenConst.Transient, "transient", false),
-    new: this.newToken(TokenConst.New, "new", false),
-    return: this.newToken(TokenConst.Return, "return", false),
-    break: this.newToken(TokenConst.Break, "break", false),
-    try: this.newToken(TokenConst.Try, "try", false),
-    catch: this.newToken(TokenConst.Catch, "catch", false),
-    finally: this.newToken(TokenConst.Finally, "finally", false),
-    super: this.newToken(TokenConst.Super, "super", false),
-    volatile: this.newToken(TokenConst.Volatile, "volatile", false)
+  private tokens: Token[] = [];
+  private start: number = 0;
+  private current: number = 0;
+  private line: number = 1;
+  private column: number = 1;
+  private keywords: Record<string, TokenKind> = {
+    package: TokenConst.Package,
+    import: TokenConst.Import,
+    class: TokenConst.Class,
+    public: TokenConst.Public,
+    protected: TokenConst.Protected,
+    private: TokenConst.Private,
+    static: TokenConst.Static,
+    abstract: TokenConst.Abstract,
+    final: TokenConst.Final,
+    byte: TokenConst.Byte,
+    short: TokenConst.Short,
+    int: TokenConst.Int,
+    long: TokenConst.Long,
+    char: TokenConst.Char,
+    float: TokenConst.Float,
+    double: TokenConst.Double,
+    boolean: TokenConst.Boolean,
+    void: TokenConst.Void,
+    if: TokenConst.If,
+    else: TokenConst.Else,
+    do: TokenConst.Do,
+    while: TokenConst.While,
+    switch: TokenConst.Switch,
+    case: TokenConst.Case,
+    goto: TokenConst.Goto,
+    continue: TokenConst.Continue,
+    const: TokenConst.Const,
+    default: TokenConst.Default,
+    extends: TokenConst.Extends,
+    implements: TokenConst.Implements,
+    instanceof: TokenConst.Instanceof,
+    interface: TokenConst.Interface,
+    native: TokenConst.Native,
+    synchronized: TokenConst.Synchronized,
+    this: TokenConst.This,
+    throw: TokenConst.This,
+    throws: TokenConst.This,
+    transient: TokenConst.Transient,
+    new: TokenConst.New,
+    return: TokenConst.Return,
+    break: TokenConst.Break,
+    try: TokenConst.Try,
+    catch: TokenConst.Catch,
+    finally: TokenConst.Finally,
+    super: TokenConst.Super,
+    volatile: TokenConst.Volatile
   } as const;
-  constructor(private input: string) {
-    this.nextChar();
+  constructor(private source: string) {}
+  scanTokens() {
+    while (!this.isAtEnd()) {
+      this.start = this.current;
+      this.scanToken();
+    }
+    this.tokens.push({
+      tokenType: "Eof",
+      lexeme: "",
+      literal: null,
+      line: this.line,
+      column: this.column
+    });
+    return this.tokens;
   }
-  tokenize(): Array<Token> {
-    const tokens: Array<Token> = [];
-    let token: Token | undefined;
-    do {
-      token = this.nextToken();
-      if (token !== undefined && token.tokenType !== TokenConst.Ignore) {
-        tokens.push(token);
-      }
-    } while (token?.tokenType !== TokenConst.Eof);
+  private isAtEnd(): boolean {
+    return this.current >= this.source.length;
+  }
 
-    return tokens;
-  }
-  private nextToken() {
-    switch (this.charAtMoment) {
+  private scanToken() {
+    const c = this.advance();
+    switch (c) {
       case "{":
-        return this.newToken(TokenConst.LBracket, this.charAtMoment);
+        this.addToken(TokenConst.LBracket);
+        break;
       case "}":
-        return this.newToken(TokenConst.RBracket, this.charAtMoment);
+        this.addToken(TokenConst.RBracket);
+        break;
       case ";":
-        return this.newToken(TokenConst.Semicolon, this.charAtMoment);
+        this.addToken(TokenConst.Semicolon);
+        break;
       case ":":
-        return this.newToken(TokenConst.Colon, this.charAtMoment);
+        this.addToken(TokenConst.Colon);
+        break;
       case "(":
-        return this.newToken(TokenConst.LParen, this.charAtMoment);
+        this.addToken(TokenConst.LParen);
+        break;
       case ")":
-        return this.newToken(TokenConst.RParen, this.charAtMoment);
-      case ",":
-        return this.newToken(TokenConst.Comma, this.charAtMoment);
+        this.addToken(TokenConst.RParen);
+        break;
       case '"':
-        const { literal, valid } = this.readLiteral();
-        if (valid) {
-          return this.newToken(TokenConst.Literal, literal);
-        } else {
-          return this.newToken(TokenConst.Illegal, literal, false);
-        }
-      case "'":
-        return this.newToken(TokenConst.SingleQuote, this.charAtMoment);
-      case "=": {
-        if (this.peekChar() === "=") {
-          this.nextChar();
-          return this.newToken(TokenConst.Eq, "==");
-        }
-        return this.newToken(TokenConst.Assign, this.charAtMoment);
+        this.literal();
+        break;
+      case ">": {
+        this.addToken(this.match("=") ? TokenConst.GreaterOrEqualThan : TokenConst.GreaterThan);
+        break;
       }
-      case "/": {
-        if (this.peekChar() === "/") {
-          this.skipComments();
-          return this.newToken(TokenConst.Ignore, null, false);
-        } else if (this.peekChar() === "*") {
-          this.skipMultilineComments();
-          return this.newToken(TokenConst.Ignore, null, false);
-        }
-        return this.newToken(TokenConst.Division, this.charAtMoment);
+      case "<": {
+        this.addToken(this.match("=") ? TokenConst.LowerOrEqualThan : TokenConst.LowerThan);
+        break;
       }
-      case ">":
-        return this.newToken(TokenConst.GreaterThan, this.charAtMoment);
-      case "<":
-        return this.newToken(TokenConst.LowerThan, this.charAtMoment);
       case ".":
-        return this.newToken(TokenConst.Dot, this.charAtMoment);
+        this.addToken(TokenConst.Dot);
+        break;
+      case "/": {
+        if (this.match("/")) {
+          this.skipSingleLineComment();
+        } else if (this.match("*")) {
+          this.skipMultilineComment();
+        } else {
+          this.addToken(TokenConst.Division);
+        }
+        break;
+      }
+      case "=": {
+        this.addToken(this.match("=") ? TokenConst.Eq : TokenConst.Assign);
+        break;
+      }
+      case "!": {
+        if (this.match("=")) {
+          this.addToken(TokenConst.NotEq);
+        }
+        break;
+      }
+      case "|": {
+        if (this.match("|")) {
+          this.addToken(TokenConst.Or);
+        }
+        break;
+      }
+      case "&": {
+        if (this.match("&")) {
+          this.addToken(TokenConst.And);
+        }
+        break;
+      }
       case " ":
-      case "\n":
       case "\t":
-      case "\r": {
-        this.skipWhitespace();
-        return this.newToken(TokenConst.Ignore, null, false);
-      }
+      case "\r":
+        break;
+      case "\n":
+        this.line++;
+        break;
       case "\0":
-        return this.newToken(TokenConst.Eof, this.charAtMoment);
-    }
-
-    if (this.isNumber(this.charAtMoment)) {
-      if (this.isAlphabetic(this.peekChar())) {
-        const identifier = this.readIdentifier();
-        return this.newToken(TokenConst.Illegal, identifier, false);
-      }
-      const num = this.readNumber();
-      return this.newToken(TokenConst.Number, num, false);
-    }
-    if (this.isAlphabetic(this.charAtMoment)) {
-      const identifier = this.readIdentifier();
-      // if (this.isIllegalIdentifier(identifier)) {
-      //   return this.newToken(TokenConst.Illegal, identifier);
-      // }
-      const keyword = this.keywords[identifier as keyof typeof this.keywords];
-      if (keyword) {
-        return keyword;
-      }
-      return this.newToken(TokenConst.Identifier, identifier, false);
-    }
-    this.nextChar();
-    return this.newToken(TokenConst.Illegal, this.charAtMoment);
-  }
-
-  private newToken(tokenType: TokenKind, identifier: string | null, walk = true): Token {
-    if (walk) {
-      this.nextChar();
-    }
-    return { tokenType, literal: identifier };
-  }
-  private skipWhitespace() {
-    while (
-      this.charAtMoment === " " ||
-      this.charAtMoment === "\n" ||
-      this.charAtMoment === "\t" ||
-      this.charAtMoment === "\r"
-    ) {
-      this.nextChar();
+        this.addToken(TokenConst.Eof);
+        break;
+      default:
+        if (this.isNumber(c)) {
+          this.number();
+        } else if (this.isAlpha(c)) {
+          this.identifier();
+        } else {
+          JCompiler.error(this.line, `Unexpected character ${c}.`);
+        }
+        break;
     }
   }
 
-  private skipComments() {
-    this.nextChar();
-    this.nextChar();
-    while (this.charAtMoment !== "\n") {
-      this.nextChar();
+  private skipSingleLineComment() {
+    while (this.peek() !== "\n" && !this.isAtEnd()) {
+      this.advance();
     }
   }
 
-  private skipMultilineComments() {
-    this.nextChar();
-    this.nextChar();
-    while (this.charAtMoment !== "*" && this.peekChar() !== "/") {
-      this.nextChar();
+  private skipMultilineComment() {
+    while (this.peek() !== "*" && this.peekNext() !== "/" && !this.isAtEnd()) {
+      this.advance();
     }
-    this.nextChar();
-    this.nextChar();
   }
 
-  private peekChar(): string {
-    if (this.readPosition >= this.input.length) {
+  private advance(): string {
+    const char = this.source.charAt(this.current++);
+    this.column++;
+    if (char === "\n") {
+      this.column = 1;
+    }
+    return char;
+  }
+
+  private addToken(tokenType: Token["tokenType"], literal: string | null = null) {
+    const text = this.source.substring(this.start, this.current);
+    this.tokens.push({
+      tokenType,
+      lexeme: text,
+      literal,
+      line: this.line,
+      column: this.column
+    });
+  }
+
+  private match(expected: string): boolean {
+    if (this.isAtEnd()) {
+      return false;
+    }
+    if (this.source.charAt(this.current) !== expected) {
+      return false;
+    }
+    this.current++;
+    return true;
+  }
+
+  private peek(): string {
+    if (this.isAtEnd()) {
       return "\0";
     }
-    return this.input[this.readPosition];
+    return this.source.charAt(this.current);
   }
 
-  private isNumber(ch: string): boolean {
-    const char = ch.charCodeAt(0);
+  private peekNext() {
+    if (this.current + 1 >= this.source.length) {
+      return "\0";
+    }
+    return this.source.charAt(this.current + 1);
+  }
+  private literal() {
+    while (this.peek() !== '"' && !this.isAtEnd()) {
+      if (this.peek() === "\n") {
+        this.line++;
+      }
+      this.advance();
+    }
+
+    if (this.isAtEnd()) {
+      JCompiler.error(this.line, "Unterminated string.");
+      return;
+    }
+    this.advance();
+
+    const value = this.source.substring(this.start + 1, this.current - 1);
+    this.addToken(TokenConst.Literal, value);
+  }
+  private isNumber(c: string) {
+    const char = c.charCodeAt(0);
     return "0".charCodeAt(0) <= char && char <= "9".charCodeAt(0);
   }
 
-  private isAlphabetic(character: string): boolean {
-    const char = character.charCodeAt(0);
+  private number() {
+    while (this.isNumber(this.peek())) {
+      this.advance();
+    }
+    if (this.peek() === "." && this.isNumber(this.peekNext())) {
+      this.advance();
+      while (this.isNumber(this.peek())) {
+        this.advance();
+      }
+    }
+    const value = this.source.substring(this.start, this.current);
+    this.addToken(TokenConst.Number, value);
+  }
+
+  private isAlpha(c: string) {
+    const char = c.charCodeAt(0);
     return (
       ("a".charCodeAt(0) <= char && "z".charCodeAt(0) >= char) ||
       ("A".charCodeAt(0) <= char && "Z".charCodeAt(0) >= char) ||
@@ -205,48 +264,12 @@ export class Lexer {
       char === "_".charCodeAt(0)
     );
   }
-
-  private nextChar() {
-    if (this.readPosition >= this.input.length) {
-      this.charAtMoment = "\0";
-    } else {
-      this.charAtMoment = this.input[this.readPosition];
+  private identifier() {
+    while (this.isAlpha(this.peek()) || this.isNumber(this.peek())) {
+      this.advance();
     }
-    this.position = this.readPosition++;
-  }
-
-  private readIdentifier(): string {
-    const initial = this.position;
-    while (this.isAlphabetic(this.charAtMoment) || this.isNumber(this.charAtMoment)) {
-      this.nextChar();
-    }
-    return this.input.slice(initial, this.position);
-  }
-
-  private readNumber(): string {
-    const initial = this.position;
-    while (this.isNumber(this.charAtMoment)) {
-      this.nextChar();
-    }
-    return this.input.slice(initial, this.position);
-  }
-
-  private readLiteral(): { literal: string; valid: boolean } {
-    this.nextChar();
-    const initial = this.position;
-    while (this.charAtMoment !== '"') {
-      if (this.charAtMoment === "\n") {
-        return { literal: this.input.slice(initial, this.position), valid: false };
-      }
-      this.nextChar();
-    }
-    return { literal: this.input.slice(initial, this.position), valid: true };
-  }
-
-  private isIllegalIdentifier(identifier: string): boolean {
-    for (let i = 0; i < identifier.length; i++) {
-      if (!this.isAlphabetic(identifier[i])) return true;
-    }
-    return false;
+    const text = this.source.substring(this.start, this.current);
+    const type = this.keywords[text] || TokenConst.Identifier;
+    this.addToken(type);
   }
 }
